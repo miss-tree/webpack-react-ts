@@ -1,15 +1,15 @@
 const path = require("path");
 const webpack = require('webpack');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
-const htmlWebpackPlugin = require('html-webpack-plugin');
-const portfinder = require('portfinder') //防止端口被占用 
-const { CleanWebpackPlugin } = require('clean-webpack-plugin') //清楚之前的打包文件
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const portfinder = require('portfinder') // 防止端口被占用 
+const { CleanWebpackPlugin } = require('clean-webpack-plugin') // 清楚之前的打包文件
 const CopyWebpackPlugin = require('copy-webpack-plugin'); // 将public目录下的文件复制到dist文件夹
-const OptimizeCssPlugin = require('optimize-css-assets-webpack-plugin'); //压缩打包的css文件
-const NODE_ENV = process.env.NODE_ENV
+const OptimizeCssPlugin = require('optimize-css-assets-webpack-plugin'); // 压缩打包的css文件
 // 打包编译进度
 const SpeedMeasureWebpackPlugin = require('speed-measure-webpack-plugin');
 const smp = new SpeedMeasureWebpackPlugin();
+const isDev = process.env.NODE_ENV === 'development'
 console.log("process.ENV", process.env.NODE_ENV);
 
 /**
@@ -18,7 +18,7 @@ console.log("process.ENV", process.env.NODE_ENV);
  */
 
 const baseConfig = {
-  mode: NODE_ENV == 'development' ? 'development' : 'production',
+  mode: isDev ? 'development' : 'production',
   entry: {
     app: ['./src/index.js'],
     library: [
@@ -27,7 +27,7 @@ const baseConfig = {
     ],
   },
   output: {
-    filename: "js/[name].js",
+    filename: isDev ? "js/[name].js" : "js/[name]_[hash].js",
     path: path.resolve(__dirname, "dist")
   },
   cache: {
@@ -113,10 +113,11 @@ const baseConfig = {
     extensions: ['.ts', '.tsx', '.scss', 'json', '.js'],
   },
   plugins: [
-    /** 将 vue、vue-router等 基础包打包成一个文件。  */
+    /** 将 vue、vue-router等 基础包打包成一个文件。 https://webpack.docschina.org/plugins/dll-plugin/ */
     new webpack.DllPlugin({
       name: '[name]_[hash]',
-      path: path.join(__dirname, './DLL/[name].json')
+      path: path.join(__dirname, './DLL/[name].json'),
+      entryOnly: true,
     }),
     /** 将css文件处理 */
     new MiniCssExtractPlugin({
@@ -124,7 +125,7 @@ const baseConfig = {
     }),
     // 生成html名称为index.html
     // 生成使用的模板为public/index.html
-    new htmlWebpackPlugin({
+    new HtmlWebpackPlugin({
       filename: 'index.html',
       template: path.resolve(__dirname, './public/index.html'),
     }),
@@ -135,8 +136,8 @@ const baseConfig = {
       patterns: [
         {
           from: '*.js',
-          context: path.resolve(rootDir, "public/js"),
-          to: path.resolve(rootDir, 'dist/js'),
+          context: path.resolve(__dirname, "public/js"),
+          to: path.resolve(__dirname, 'dist/js'),
         },
         // {
         //   from: '*.html',
@@ -147,7 +148,7 @@ const baseConfig = {
     })
   ]
 }
-/**判断端口是否被占用 */
+/** 判断端口是否被占用 */
 async function isOccupy () {
   try {
     // 端口被占用时候 portfinder.getPortPromise 返回一个新的端口(往上叠加)
@@ -158,7 +159,7 @@ async function isOccupy () {
     throw new Error(e)
   }
 }
-let exportConfig = isOccupy()
+const exportConfig = isOccupy()
 
 module.exports = smp.wrap(exportConfig);
 

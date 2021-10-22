@@ -1,17 +1,17 @@
 const path = require("path");
 const webpack = require('webpack');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
-const HtmlWebpackPlugin = require('html-webpack-plugin');
 const portfinder = require('portfinder') // 防止端口被占用 
-const { CleanWebpackPlugin } = require('clean-webpack-plugin') // 清楚之前的打包文件
-const CopyWebpackPlugin = require('copy-webpack-plugin'); // 将public目录下的文件复制到dist文件夹
-const OptimizeCssPlugin = require('optimize-css-assets-webpack-plugin'); // 压缩打包的css文件
-// 打包编译进度
+const TerserPlugin = require("terser-webpack-plugin");
 const SpeedMeasureWebpackPlugin = require('speed-measure-webpack-plugin');
 const smp = new SpeedMeasureWebpackPlugin();
-const isDev = process.env.NODE_ENV === 'development'
-console.log("process.ENV", process.env.NODE_ENV);
 
+const isDev = process.env.NODE_ENV === 'development'
+const PORT = process.env.PORT
+console.log("process.ENV", process.env.NODE_ENV, PORT);
+
+const Plugins = require('./webpack.plugin')
+const Module = require('./webpack.module')
 /**
  * 多线程构建插件：thread-loader,parallel-webpack,HappyPack(已经不再维护，建议使用第一个)
  * 预编译资源模块 DLLPlugin 使用 webapck内置的插件DLLPlugin 进行分包，DllReferencePlugin 对 manifest.json 引用。
@@ -20,66 +20,19 @@ console.log("process.ENV", process.env.NODE_ENV);
 const baseConfig = {
   mode: isDev ? 'development' : 'production',
   entry: {
-    app: ['./src/index.js'],
-    library: [
-      'vue',
-      'vue-router'
-    ],
+    index: './src/index.js',
+    // library: [
+    //   'vue',
+    //   'vue-router'
+    // ],
   },
   output: {
     filename: isDev ? "js/[name].js" : "js/[name]_[hash].js",
-    path: path.resolve(__dirname, "dist")
+    path: path.resolve(__dirname, "dist"),
+    // clean: !isDev
   },
   cache: {
     type: 'filesystem', // 使用文件缓存
-  },
-  module: {
-    rules: [
-      {
-        test: /\.(js|jsx)$/,
-        use: 'babel-loader'
-      },
-      {
-        // 同时认识ts jsx js tsx 文件
-        test: /\.(t|j)sx?$/,
-        use: 'babel-loader',
-        include: [path.resolve(__dirname, 'src')],
-        exclude: /node_modules/,
-      },
-      {
-        test: /\.(sa|sc)ss$/,
-        use: [
-          {
-            loader: MiniCssExtractPlugin.loader,
-          },
-          'css-loader',
-          'postcss-loader',
-          {
-            loader: 'resolve-url-loader',
-            options: {
-              keepQuery: true,
-            },
-          },
-          {
-            loader: 'sass-loader',
-            options: {
-              sourceMap: true
-            },
-          },
-        ],
-      },
-      {
-        test: /\.(png|jpe?g|svg|gif)$/,
-        type: 'asset/inline'
-      },
-      {
-        test: /\.(eot|ttf|woff|woff2)$/,
-        type: 'asset/resource',
-        generator: {
-          filename: 'fonts/[hash][ext][query]',
-        },
-      }
-    ]
   },
   devServer: {
     // static允许我们在DevServer下访问该目录的静态资源
@@ -89,78 +42,69 @@ const baseConfig = {
     static: {
       directory: path.join(__dirname, './public'),
     },
-    port: 3333,
+    port: PORT || 8088,
     // 是否开启代码压缩
     compress: true,
-    hot: true
+    hot: true,
+    open: !isDev
   },
   /** externals
    * 分包，不编译进打包文件
    * 在index.html正常的引入 cdn 资源即可
    * <script src="https://cdn.bootcss.com/vue/2.5.16/vue.min.js"></script>
    * 依然可以使用import的方式引入
+   * 可以使用插件 html-webpack-externals-plugin
   */
-  externals: {
-    'vue': 'Vue',
-    'vue-router': 'VueRouter'
+  // externals: {
+  //   'vue': 'Vue',
+  //   'vue-router': 'VueRouter'
+  // },
+  // 抽取第三方模块
+  optimization: {
+    minimize: !isDev, // 开启代码压缩
+    minimizer: [
+      new TerserPlugin({
+        // test: /\.js(\?.*)?$/i,
+        include: './src',
+        parallel: 4,
+      }),
+    ],
+    splitChunks: {
+      cacheGroups: {
+        vendor: {
+          chunks: 'initial',
+          minSize: 0,
+          minChunks: 2,
+          test: /node_modules/,
+          priority: 1
+        }
+      }
+    }
   },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
     },
     mainFiles: ['index', 'main'],
-    // 由于 webpack 的解析顺序是从左到右，因此要将使用频率高的文件类型放在左侧
+    // 解析后缀 由于 webpack 的解析顺序是从左到右，因此要将使用频率高的文件类型放在左侧
     extensions: ['.ts', '.tsx', '.scss', 'json', '.js'],
   },
-  plugins: [
-    /** 将 vue、vue-router等 基础包打包成一个文件。 https://webpack.docschina.org/plugins/dll-plugin/ */
-    new webpack.DllPlugin({
-      name: '[name]_[hash]',
-      path: path.join(__dirname, './DLL/[name].json'),
-      entryOnly: true,
-    }),
-    /** 将css文件处理 */
-    new MiniCssExtractPlugin({
-      filename: 'assets/[name].css',
-    }),
-    // 生成html名称为index.html
-    // 生成使用的模板为public/index.html
-    new HtmlWebpackPlugin({
-      filename: 'index.html',
-      template: path.resolve(__dirname, './public/index.html'),
-    }),
-    new CleanWebpackPlugin(),
-    new OptimizeCssPlugin(),
-    // 将public下的文件复制
-    new CopyWebpackPlugin({
-      patterns: [
-        {
-          from: '*.js',
-          context: path.resolve(__dirname, "public/js"),
-          to: path.resolve(__dirname, 'dist/js'),
-        },
-        // {
-        //   from: '*.html',
-        //   context: path.resolve(rootDir, "public/"),
-        //   to: path.resolve(rootDir, 'dist/'),
-        // }
-      ],
-    })
-  ]
+  module: Module,
+  plugins: Plugins
 }
 /** 判断端口是否被占用 */
-async function isOccupy () {
-  try {
-    // 端口被占用时候 portfinder.getPortPromise 返回一个新的端口(往上叠加)
-    const port = await portfinder.getPortPromise()
-    baseConfig.devServer.port = port
-    return baseConfig
-  } catch (e) {
-    throw new Error(e)
-  }
-}
-const exportConfig = isOccupy()
+// async function isOccupy () {
+//   try {
+//     // 端口被占用时候 portfinder.getPortPromise 返回一个新的端口(往上叠加)
+//     const port = await portfinder.getPortPromise()
+//     baseConfig.devServer.port = port
+//     return baseConfig
+//   } catch (e) {
+//     throw new Error(e)
+//   }
+// }
+// const exportConfig = isOccupy()
 
-module.exports = smp.wrap(exportConfig);
+module.exports = smp.wrap(baseConfig);
 
 

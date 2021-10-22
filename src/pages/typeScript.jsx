@@ -3,7 +3,7 @@ import React, { Component } from 'react'
 class TypeScriptView extends Component {
 
   // 数据请求在componentWillMount
-  componentWillMount () { }
+  UNSAFE_componentWillMount () { }
 
   componentDidMount () { }
   componentDidShow () { }

@@ -4,7 +4,9 @@
   "description": "基于react和ts的脚手架",
   "main": "index.js",
   "scripts": {
-    "dev": "cross-env NODE_ENV=development --port=3333 webpack-dev-server --config ./webpack.config.js",
+    "dev": "cross-env NODE_ENV=development --port=3333 webpack --progress --hot --config ./webpack.config.js",
+    "vite": "cross-env NODE_ENV=development vite --config ./vite.config.js",
+    "dll": "webpack --config ./webpack.dll.js",
     "build:stats": "cross-env NODE_ENV=production webpack --config ./webpack.config.js"
   },
   "repository": {
@@ -20,6 +22,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.15.8",
+    "@babel/plugin-proposal-decorators": "^7.15.8",
     "@babel/plugin-transform-runtime": "^7.15.8",
     "@babel/preset-env": "^7.15.8",
     "@babel/preset-react": "^7.14.5",
@@ -28,6 +31,7 @@
     "@types/react-dom": "^17.0.9",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.0.0",
+    "@vitejs/plugin-react": "^1.0.6",
     "autoprefixer": "^10.3.7",
     "babel-loader": "^8.2.2",
     "clean-webpack-plugin": "^4.0.0",
@@ -45,6 +49,8 @@
     "html-webpack-externals-plugin": "^3.8.0",
     "html-webpack-plugin": "^5.3.2",
     "image-webpack-loader": "^8.0.1",
+    "less": "^4.1.2",
+    "less-loader": "^10.2.0",
     "mini-css-extract-plugin": "^2.4.2",
     "optimize-css-assets-webpack-plugin": "^6.0.1",
     "postcss": "^8.3.9",
@@ -55,8 +61,10 @@
     "sass": "^1.43.2",
     "sass-loader": "^12.2.0",
     "speed-measure-webpack-plugin": "^1.5.0",
+    "style-loader": "^3.3.1",
     "terser-webpack-plugin": "^5.2.4",
     "typescript": "^4.4.4",
+    "vite": "^2.6.12",
     "webpack": "^5.58.1",
     "webpack-cli": "^4.9.0",
     "webpack-dev-server": "^4.3.1"

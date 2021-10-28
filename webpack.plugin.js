@@ -16,15 +16,20 @@ const isDev = process.env.NODE_ENV === 'development'
 
 const BasePlugin = [
   /** 将 vue、vue-router等 基础包打包成一个文件。 https://webpack.docschina.org/plugins/dll-plugin/ */
-  new webpack.DllPlugin({
-    name: '[name]_[hash]',
-    path: path.join(__dirname, './DLL/[name].json'),
-    /** entryOnly为true,否则 DLL 中的 tree shaking 将无法工作，因为所有 exports 均可使用 */
-    entryOnly: true,
-  }),
+  // new webpack.DllPlugin({
+  //   name: '[name]_[hash]',
+  //   path: path.join(__dirname, './DLL/[name].json'),
+  //   /** entryOnly为true,否则 DLL 中的 tree shaking 将无法工作，因为所有 exports 均可使用 */
+  //   entryOnly: true,
+  // }),
+  /** 获取动态链接的仓库 eg：vue、react ，没有就再次编译文件 */
+  // new webpack.DllReferencePlugin({
+  //   context: '.',
+  //   manifest: path.resolve(__dirname, 'dist/dll/library_dll.json')
+  // }),
   /** 将css文件处理 */
   new MiniCssExtractPlugin({
-    filename: 'assets/[name].css',
+    filename: 'css/[name].css'
   }),
   // 生成html名称为index.html
   // 生成使用的模板为public/index.html
@@ -45,6 +50,12 @@ const BasePlugin = [
     // {nodir: true}表示不包含文件夹，加快查找速度
     paths: glob.sync('./src/**/*', { nodir: true })
   }),
+  /** 定义全局变量 可以在页面访问到 */
+  // new webpack.DefinePlugin({
+  //   DEV:JSON.stringify('development')
+  // }),
+  /** 热更新 */
+  new webpack.HotModuleReplacementPlugin()
   /**
    new HtmlWebpackExternalsPlugin({
      externals: [
@@ -93,6 +104,15 @@ if (!isDev) {
         //   to: path.resolve(rootDir, 'dist/'),
         // }
       ],
+    }),
+    new HtmlWebpackExternalsPlugin({
+      externals: [
+        {
+          module: 'react',
+          entry: 'https://cdn.bootcdn.net/ajax/libs/react/17.0.2/cjs/react.production.min.js',
+          global: 'React'
+        }
+      ]
     })
   ]
   BasePlugin.concat(prodPlugins)

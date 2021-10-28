@@ -1,23 +1,24 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-
-import App from './pages/loader.jsx';
-// import './assets/css/index.css';
-// const App = () => {
-//   console.log("你好，webpack ==22212312211");
-//   return (
-//     <div className="sjjh">你好呀</div>
-//   )
-// }
-
-// 加快react运行速度的一个js文件
-// import * as serviceWorker from './serviceWorker';
-// import registerServiceWorker from './registerServiceWorker';
-
+import './assets/index.css'
+import './assets/scss/index.scss';
+const App = () => {
+  return (
+    <div className="title">你好呀111</div>
+  )
+}
+@log
+class A {
+  a = 1
+}
+const c = new A()
+console.log('c.a', c.a);
+function log (target) {
+  console.log('target:', target);
+}
 
 ReactDOM.render(
   <App />,
   document.getElementById('App')
 );
-// serviceWorker.unregister()

@@ -5,7 +5,7 @@ const portfinder = require('portfinder') // 防止端口被占用
 const TerserPlugin = require("terser-webpack-plugin");
 const SpeedMeasureWebpackPlugin = require('speed-measure-webpack-plugin');
 const smp = new SpeedMeasureWebpackPlugin();
-
+const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 const isDev = process.env.NODE_ENV === 'development'
 const PORT = process.env.PORT
 console.log("process.ENV", process.env.NODE_ENV, PORT);
@@ -21,18 +21,21 @@ const baseConfig = {
   mode: isDev ? 'development' : 'production',
   entry: {
     index: './src/index.js',
-    // library: [
-    //   'vue',
-    //   'vue-router'
-    // ],
   },
   output: {
-    filename: isDev ? "js/[name].js" : "js/[name]_[hash].js",
+    // filename: isDev ? "js/[name].js" : "js/[name]_[hash].js",
+    filename: "js/[name].js",
     path: path.resolve(__dirname, "dist"),
     // clean: !isDev
   },
   cache: {
     type: 'filesystem', // 使用文件缓存
+  },
+  watch: true,
+  watchOptions: {
+    aggregateTimeout: 1000,
+    ignored: /node_modules/,
+    poll: 1000,
   },
   devServer: {
     // static允许我们在DevServer下访问该目录的静态资源
@@ -53,7 +56,7 @@ const baseConfig = {
    * 在index.html正常的引入 cdn 资源即可
    * <script src="https://cdn.bootcss.com/vue/2.5.16/vue.min.js"></script>
    * 依然可以使用import的方式引入
-   * 可以使用插件 html-webpack-externals-plugin
+   * 可以使用插件 html-webpack-externals-plugin  会在index.html自动引入
   */
   // externals: {
   //   'vue': 'Vue',
@@ -63,11 +66,14 @@ const baseConfig = {
   optimization: {
     minimize: !isDev, // 开启代码压缩
     minimizer: [
+      // 不再使用 uglifyjs插件
       new TerserPlugin({
         // test: /\.js(\?.*)?$/i,
         include: './src',
         parallel: 4,
       }),
+      // css 样式压缩
+      new OptimizeCSSAssetsPlugin()
     ],
     splitChunks: {
       cacheGroups: {
@@ -79,7 +85,10 @@ const baseConfig = {
           priority: 1
         }
       }
-    }
+    },
+    // runtimeChunks: {
+    //   name: 'runtime',
+    // }
   },
   resolve: {
     alias: {
@@ -105,6 +114,7 @@ const baseConfig = {
 // }
 // const exportConfig = isOccupy()
 
-module.exports = smp.wrap(baseConfig);
+// module.exports = smp.wrap(baseConfig);
+module.exports = baseConfig;
 
 

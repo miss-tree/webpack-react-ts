@@ -25,17 +25,12 @@ const baseConfig = {
   output: {
     // filename: isDev ? "js/[name].js" : "js/[name]_[hash].js",
     filename: "js/[name].js",
+    chunkFilename: "js/[name].[chunkhash:8].js",
     path: path.resolve(__dirname, "dist"),
-    // clean: !isDev
+    clean: !isDev
   },
   cache: {
     type: 'filesystem', // 使用文件缓存
-  },
-  watch: true,
-  watchOptions: {
-    aggregateTimeout: 1000,
-    ignored: /node_modules/,
-    poll: 1000,
   },
   devServer: {
     // static允许我们在DevServer下访问该目录的静态资源
@@ -68,7 +63,7 @@ const baseConfig = {
     minimizer: [
       // 不再使用 uglifyjs插件
       new TerserPlugin({
-        // test: /\.js(\?.*)?$/i,
+        test: /\.js(\?.*)?$/i,
         include: './src',
         parallel: 4,
       }),
@@ -76,6 +71,13 @@ const baseConfig = {
       new OptimizeCSSAssetsPlugin()
     ],
     splitChunks: {
+      chunks: 'async', // all | async | initial
+      minSize: 20 * 1024,
+      minRemainingSize: 0,
+      minChunks: 1, // 拆分前必须共享模块的最小 chunks 数
+      maxAsyncRequests: 30, // 按需加载时的最大并行请求数
+      maxInitialRequests: 30, // 入口点的最大并行请求数
+      // enforceSizeThreshold: 50000, // 强制执行拆分的体积阈值和其他限制（minRemainingSize，maxAsyncRequests，maxInitialRequests）将被忽略
       cacheGroups: {
         vendor: {
           chunks: 'initial',
@@ -100,6 +102,16 @@ const baseConfig = {
   },
   module: Module,
   plugins: Plugins
+}
+if (isDev) {
+  Object.assign(baseConfig, {
+    watch: true,
+    watchOptions: {
+      aggregateTimeout: 1000,
+      ignored: /node_modules/,
+      poll: 1000,
+    }
+  })
 }
 /** 判断端口是否被占用 */
 // async function isOccupy () {

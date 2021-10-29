@@ -4,7 +4,7 @@
   "description": "基于react和ts的脚手架",
   "main": "index.js",
   "scripts": {
-    "dev": "cross-env NODE_ENV=development --port=3333 webpack --progress --hot --config ./webpack.config.js",
+    "dev": "cross-env NODE_ENV=development --port=3333 webpack-dev-server --progress --hot --config ./webpack.config.js",
     "vite": "cross-env NODE_ENV=development vite --config ./vite.config.js",
     "dll": "webpack --config ./webpack.dll.js",
     "build:stats": "cross-env NODE_ENV=production webpack --config ./webpack.config.js"
@@ -18,23 +18,27 @@
   "dependencies": {
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "react-router": "^5.2.1"
+    "react-router": "^5.2.1",
+    "react-router-dom": "^5.3.0"
   },
   "devDependencies": {
     "@babel/core": "^7.15.8",
     "@babel/plugin-proposal-decorators": "^7.15.8",
+    "@babel/plugin-syntax-dynamic-import": "^7.8.3",
     "@babel/plugin-transform-runtime": "^7.15.8",
     "@babel/preset-env": "^7.15.8",
     "@babel/preset-react": "^7.14.5",
     "@babel/preset-typescript": "^7.15.0",
     "@types/react": "^17.0.30",
     "@types/react-dom": "^17.0.9",
+    "@types/react-router-dom": "^5.3.2",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.0.0",
     "@vitejs/plugin-react": "^1.0.6",
     "autoprefixer": "^10.3.7",
     "babel-loader": "^8.2.2",
     "clean-webpack-plugin": "^4.0.0",
+    "compression-webpack-plugin": "^9.0.0",
     "copy-webpack-plugin": "^9.0.1",
     "cross-env": "^7.0.3",
     "css-loader": "^6.4.0",
@@ -66,6 +70,7 @@
     "typescript": "^4.4.4",
     "vite": "^2.6.12",
     "webpack": "^5.58.1",
+    "webpack-bundle-analyzer": "^4.5.0",
     "webpack-cli": "^4.9.0",
     "webpack-dev-server": "^4.3.1"
   },

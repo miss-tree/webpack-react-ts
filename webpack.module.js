@@ -24,7 +24,9 @@ const Module = {
             "@babel/preset-react"
           ],
           plugins: [
-            ['@babel/plugin-proposal-decorators', { 'legacy': true }]
+            // 支持装饰器
+            ['@babel/plugin-proposal-decorators', { 'legacy': true }],
+            "@babel/plugin-syntax-dynamic-import"
           ]
         }
       },
@@ -34,7 +36,7 @@ const Module = {
     {
       test: /\.css$/,
       use: [
-        MiniCssExtractPlugin.loader,
+        MiniCssExtractPlugin.loader,// 生成css文件
         // 'style-loader', // 把css 插入 header标签中
         'css-loader',  // 解析 @important 语法或路径
         'postcss-loader',
@@ -56,7 +58,7 @@ const Module = {
         {
           loader: 'style-loader', // 把css 插入 header标签中
         },
-        // 'postcss-loader', // 兼容浏览器
+        'postcss-loader', // 兼容浏览器
         'css-loader',  // 解析 @important 语法或路径
         'less-loader', // 先解析 less 成css，再处理后续
       ]
@@ -66,7 +68,7 @@ const Module = {
       use: [
         MiniCssExtractPlugin.loader,
         'css-loader',
-        // 'postcss-loader',
+        'postcss-loader',
         {
           loader: 'sass-loader',
           options: {

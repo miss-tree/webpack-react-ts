@@ -3,11 +3,9 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './assets/index.css'
 import './assets/scss/index.scss';
-const App = () => {
-  return (
-    <div className="title">你好呀111</div>
-  )
-}
+
+import App from '@/pages/App'
+
 @log
 class A {
   a = 1

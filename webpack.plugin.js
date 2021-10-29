@@ -11,6 +11,9 @@ const HtmlWebpackExternalsPlugin = require('html-webpack-externals-plugin');
 const glob = require('glob');
 const PurgecssWebpackPlugin = require('purgecss-webpack-plugin');
 const OptimizeCssPlugin = require('optimize-css-assets-webpack-plugin'); // 压缩打包的css文件
+const CompressionWebpackPlugin = require("compression-webpack-plugin"); // 文件gzip压缩
+const productionGzipExtensions = ['js', 'css', 'png', 'jpg']
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 // 打包编译进度
 const isDev = process.env.NODE_ENV === 'development'
 
@@ -22,11 +25,24 @@ const BasePlugin = [
   //   /** entryOnly为true,否则 DLL 中的 tree shaking 将无法工作，因为所有 exports 均可使用 */
   //   entryOnly: true,
   // }),
+  // 将public下的文件复制,例如是静态资源，直接引入到index.html的
+  new CopyWebpackPlugin({
+    patterns: [
+      {
+        from: 'public/js',
+        to: path.resolve(__dirname, 'dist/js'),
+      },
+      {
+        from: 'DLL/',
+        to: path.resolve(__dirname, 'dist/dll'),
+      }
+    ],
+  }),
   /** 获取动态链接的仓库 eg：vue、react ，没有就再次编译文件 */
-  // new webpack.DllReferencePlugin({
-  //   context: '.',
-  //   manifest: path.resolve(__dirname, 'dist/dll/library_dll.json')
-  // }),
+  new webpack.DllReferencePlugin({
+    context: path.resolve(__dirname, 'dist/dll/'),
+    manifest: path.resolve(__dirname, 'dist/dll/library_dll.json')
+  }),
   /** 将css文件处理 */
   new MiniCssExtractPlugin({
     filename: 'css/[name].css'
@@ -55,7 +71,13 @@ const BasePlugin = [
   //   DEV:JSON.stringify('development')
   // }),
   /** 热更新 */
-  new webpack.HotModuleReplacementPlugin()
+  new webpack.HotModuleReplacementPlugin(),
+  /** 分包可视化 */
+  !isDev && new BundleAnalyzerPlugin({
+    analyzerMode: "server",
+    analyzerHost: "127.0.0.1",
+    analyzerPort: 8724, // 运行后的端口号
+  }),
   /**
    new HtmlWebpackExternalsPlugin({
      externals: [
@@ -76,8 +98,9 @@ const BasePlugin = [
    })
    */
 
-]
+].filter(Boolean)
 if (!isDev) {
+  console.log("🚀 ~ file: webpack.plugin.js ~ line 90 ~ isDev", isDev)
   const prodPlugins = [
     // 压缩样式
     new OptimizeCssPlugin({
@@ -90,20 +113,14 @@ if (!isDev) {
     }),
     /** 要删除的正是output.path */
     new CleanWebpackPlugin(),
-    // 将public下的文件复制,例如是静态资源，直接引入到index.html的
-    new CopyWebpackPlugin({
-      patterns: [
-        {
-          from: '*.js',
-          context: path.resolve(__dirname, "public/js"),
-          to: path.resolve(__dirname, 'dist/js'),
-        },
-        // {
-        //   from: '*.html',
-        //   context: path.resolve(rootDir, "public/"),
-        //   to: path.resolve(rootDir, 'dist/'),
-        // }
-      ],
+    new CompressionWebpackPlugin({
+      // filename: '[path].gz[query]', // 目标资源名称。
+      // [file] 会被替换成原资源。[path] 会被替换成原资源路径，[query] 替换成原查询字符串
+      filename: '[path][base].gz',
+      algorithm: 'gzip',
+      test: new RegExp('\\.(' + productionGzipExtensions.join('|') + ')$'),
+      threshold: 1024 * 20,
+      minRatio: 0.8
     }),
     new HtmlWebpackExternalsPlugin({
       externals: [

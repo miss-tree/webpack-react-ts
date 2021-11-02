@@ -5,22 +5,21 @@ import path from 'path'
 import ractRefresh from '@vitejs/plugin-react-refresh'
 import genericNames from 'generic-names'
 import reactSvgPlugin from 'vite-plugin-react-svg'
-const resolve = (url) => path.resolve(__dirname, url)
-// console.log('isDev:', process);
-// const isDev = process.env.NODE_ENV ? 'development' : 'production'
-// https://vitejs.dev/config/
 
+// import vitePluginHtml from 'vite-plugin-html';
+const resolve = (url) => path.resolve(__dirname, url)
+// https://vitejs.dev/config/
 
 export default defineConfig({
   mode: 'development',
   // root: resolve('src'),// './src/index.html',// 设置根目录文件位置，默认为当前目录下 index.html
 
   base: './',
-  // publicDir: './',
   server: {
     host: '0.0.0.0',// 公开 ip 访问服务
     port: 3456,
     open: true,
+
     // 设置为 true 强制使依赖预构建，当依赖变化时，需要更新一下预构建依赖
     force: true
   },
@@ -75,7 +74,20 @@ export default defineConfig({
         width: '{props.size || props.width}',
         fill: '{props.fill || "currentColor"}',
       }
-    })
+    }),
+    // 替代html-webpack-plugin
+    // vitePluginHtml({
+    //   minify: true,
+    //   inject: {
+    //     injectData: {
+    //       title: 'vite-react-example',
+    //       injectScript: '<script src="/configs.js"></script>', // publicDir作为根目录
+    //     },
+    //     injectOptions: {
+    //       filename: './index.html', // 模板页
+    //     }
+    //   },
+    // }),
   ],
   optimizeDeps: {
     esbuildOptions: {
@@ -106,9 +118,9 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, 'src')
+      '@': path.resolve(__dirname, './src')
     },
-    extensions: ['.jsx', '.js']
+    extensions: ['.ts', '.tsx', '.js', '.jsx']
   },
   // 关闭 vite 清屏
   clearScreen: false

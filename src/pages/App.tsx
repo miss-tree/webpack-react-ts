@@ -1,7 +1,7 @@
 
 import React, { Suspense } from 'react';
 import { HashRouter as Router, Route, } from "react-router-dom";
-import routes from "../router/"
+import routes from "@/router/index"
 import loader from "./loader.jsx"
 import ts from "./typeScript.jsx"
 
@@ -14,7 +14,7 @@ const App = () => {
       <Suspense fallback={<div>
         加载中！请耐心等待。。。
       </div>}>
-        <Route path='/'
+        <Route path='/' exact
           component={loader} />
         <Route path='/list' component={ts} />
         {/* {

@@ -3,9 +3,10 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './assets/index.css'
 import './assets/scss/index.scss';
+import './assets/less/index.less';
 
-// import App from '@/pages/App'
-// import App from './pages/App'
+import App from '@/pages/App'
+// import App from './pages/App.tsx'
 
 // @log
 // class A {
@@ -16,10 +17,10 @@ import './assets/scss/index.scss';
 // function log (target) {
 //   console.log('target:', target);
 // }
-const App = () => {
-  console.log("渲染App");
-  return (<div>hello world</div>)
-}
+// const App = () => {
+//   console.log("渲染App");
+//   return (<div>hello world</div>)
+// }
 
 ReactDOM.render(
   <App />,

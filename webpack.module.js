@@ -11,6 +11,7 @@ const Module = {
     {
       test: /\.(js|jsx)$/,
       use: 'babel-loader',
+      exclude: /node_modules/,
       include: [path.resolve(__dirname, 'src')],
     },
     {
@@ -35,6 +36,7 @@ const Module = {
     },
     {
       test: /\.css$/,
+      exclude: /node_modules/,
       use: [
         MiniCssExtractPlugin.loader,// 生成css文件
         // 'style-loader', // 把css 插入 header标签中
@@ -54,17 +56,19 @@ const Module = {
     },
     {
       test: /\.less$/,
+      exclude: /node_modules/,
       use: [
         {
           loader: 'style-loader', // 把css 插入 header标签中
         },
-        'postcss-loader', // 兼容浏览器
         'css-loader',  // 解析 @important 语法或路径
+        'postcss-loader', // 兼容浏览器
         'less-loader', // 先解析 less 成css，再处理后续
-      ]
+      ]// 顺序不能写错，否则报 unknown Word 错误
     },
     {
       test: /\.(sa|sc)ss$/,
+      exclude: /node_modules/,
       use: [
         MiniCssExtractPlugin.loader,
         'css-loader',
@@ -81,6 +85,7 @@ const Module = {
     {
       test: /\.(png|jpe?g|svg|gif)$/,
       type: 'asset/inline', /** 已经内置不需要引入loader */
+      exclude: /node_modules/,
       use: [
         {
           loader: 'url-loader',

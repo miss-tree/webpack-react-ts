@@ -66,6 +66,18 @@ const baseConfig = {
         test: /\.js(\?.*)?$/i,
         include: './src',
         parallel: 4,
+        terserOptions: {
+          parse: {},
+          compress: {},
+          // Deprecated
+          output: {
+            // 最紧凑的输出
+            beautify: false,
+            // 删除所有的注释
+            comments: false,
+          },
+          format: null,
+        },
       }),
       // css 样式压缩
       new OptimizeCSSAssetsPlugin()
@@ -98,7 +110,7 @@ const baseConfig = {
     },
     mainFiles: ['index', 'main'],
     // 解析后缀 由于 webpack 的解析顺序是从左到右，因此要将使用频率高的文件类型放在左侧
-    extensions: ['.ts', '.tsx', '.scss', 'json', '.js'],
+    extensions: ['.ts', '.tsx', 'jsx', '.js', '.scss', 'json'],
   },
   module: Module,
   plugins: Plugins

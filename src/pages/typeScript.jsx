@@ -13,7 +13,7 @@ class TypeScriptView extends Component {
 
   render () {
     return (
-      <div>
+      <div className="contain">
         <h4>TypeScript使用需要到的支持</h4>
         <div>
           首先我们引用第三方包在TypeScript文件时，简单来说它会寻找对应包的package.json中的type字段查找对应的类型定义文件。
@@ -29,7 +29,7 @@ class TypeScriptView extends Component {
     "compilerOptions": {
 
       /* 基本选项 */
-      "target": "es5",                       // 指定 ECMAScript 目标版本: 'ES3' (default), 'ES5', 'ES6'/'ES2015', 'ES2016', 'ES2017', or 'ESNEXT'
+      "target": "es5",                       // 指定 ECMAScript 版本: 'ES3' (default), 'ES5', 'ES6'/'ES2015', 'ES2016', 'ES2017', 'ESNEXT'
       "module": "commonjs",                  // 指定使用模块: 'commonjs', 'amd', 'system', 'umd' or 'es2015'
       "lib": [],                             // 指定要包含在编译中的库文件
       "allowJs": true,                       // 允许编译 javascript 文件

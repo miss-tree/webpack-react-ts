@@ -1,0 +1,12 @@
+@mixin ellipsis ($line:1) {
+    display: -webkit-box;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -webkit-line-clamp: $line;
+    -webkit-box-orient: vertical;
+}
+
+
+$color-theme:rgb(51, 50, 50);
+$font-size:13px;
+$font-weight:550;

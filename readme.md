@@ -9,4 +9,4 @@
 
 #### git 
     git commit -am "xxxxx"
-    git push -u         
+    git push -u origin master        
